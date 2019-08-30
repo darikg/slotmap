@@ -12,7 +12,7 @@ use std::collections::CollectionAllocErr;
 // We could use unions to remove the memory overhead of Option here as well, but
 // until non-Copy elements inside unions stabilize it's better to give users at
 // least some place to store non-Copy elements.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Slot<T> {
     version: u32,
     value: Option<T>,
@@ -83,7 +83,7 @@ impl<T> Slot<T> {
 /// ammo[alice] = 0;
 /// ```
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SecondaryMap<K: Key, V> {
     slots: Vec<Slot<V>>,
     num_elems: usize,
