@@ -1,14 +1,14 @@
 //! Contains the sparse secondary map implementation.
 
 use super::{is_older_version, Key, KeyData};
-use std::hash;
 use std::collections::hash_map::{self, HashMap};
+use std::hash;
 use std::iter::{Extend, FromIterator, FusedIterator};
 use std::marker::PhantomData;
 use std::ops::{Index, IndexMut};
 
 #[cfg(feature = "unstable")]
-use std::collections::CollectionAllocErr;
+use std::collections::TryReserveError;
 
 #[derive(Debug)]
 struct Slot<T> {
@@ -237,7 +237,7 @@ impl<K: Key, V, S: hash::BuildHasher> SparseSecondaryMap<K, V, S> {
     /// assert!(sec.capacity() >= 20);
     /// ```
     #[cfg(feature = "unstable")]
-    pub fn try_reserve(&mut self, additional: usize) -> Result<(), CollectionAllocErr> {
+    pub fn try_reserve(&mut self, additional: usize) -> Result<(), TryReserveError> {
         self.slots.try_reserve(additional)
     }
 
@@ -875,8 +875,8 @@ impl<K: Key, V> ExactSizeIterator for IntoIter<K, V> {}
 #[cfg(feature = "serde")]
 mod serialize {
     use super::*;
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
     use crate::SecondaryMap;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
     impl<K: Key, V: Serialize> Serialize for SparseSecondaryMap<K, V> {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -911,8 +911,8 @@ mod serialize {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use crate::*;
+    use std::collections::HashMap;
 
     #[cfg(feature = "serde")]
     use serde_json;

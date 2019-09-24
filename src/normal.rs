@@ -4,13 +4,13 @@
 //! Contains the slot map implementation.
 
 use std;
+#[cfg(feature = "unstable")]
+use std::collections::TryReserveError;
 use std::iter::{Enumerate, FusedIterator};
 use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
 use std::ops::{Index, IndexMut};
 use std::{fmt, ptr};
-#[cfg(feature = "unstable")]
-use std::collections::CollectionAllocErr;
 
 use crate::{DefaultKey, Key, KeyData, Slottable};
 
@@ -282,7 +282,7 @@ impl<K: Key, V: Slottable> SlotMap<K, V> {
     /// assert!(sm.capacity() >= 33);
     /// ```
     #[cfg(feature = "unstable")]
-    pub fn try_reserve(&mut self, additional: usize) -> Result<(), CollectionAllocErr> {
+    pub fn try_reserve(&mut self, additional: usize) -> Result<(), TryReserveError> {
         // One slot is reserved for the sentinel.
         let needed = (self.len() + additional).saturating_sub(self.slots.len() - 1);
         self.slots.try_reserve(needed)
